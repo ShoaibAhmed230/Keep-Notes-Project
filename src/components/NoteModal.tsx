@@ -11,9 +11,10 @@ interface NoteModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpdate: (id: string, updates: Partial<Note>) => void;
+  onDelete: (id: string) => void;
 }
 
-export function NoteModal({ note, isOpen, onClose, onUpdate }: NoteModalProps) {
+export function NoteModal({ note, isOpen, onClose, onUpdate, onDelete }: NoteModalProps) {
   const [title, setTitle] = useState('');
   const [earningsContent, setEarningsContent] = useState('');
   const [expensesContent, setExpensesContent] = useState('');

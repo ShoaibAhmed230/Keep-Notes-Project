@@ -331,6 +331,7 @@ export default function Home() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onUpdate={updateNote}
+        onDelete={deleteNote}
       />
     </div>
   );
