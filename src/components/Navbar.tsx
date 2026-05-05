@@ -36,22 +36,14 @@ export function Navbar({ searchQuery, onSearchChange, onMenuToggle }: NavbarProp
         <div className="flex-1">
           <div className="relative group">
             <Search 
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b] group-focus-within:text-indigo-400 transition-colors cursor-pointer" 
-              onClick={() => {/* Focus input logic if needed */}}
+              className="absolute left-3.5 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b] group-focus-within:text-indigo-400 transition-colors cursor-pointer" 
             />
             <input
               type="text"
-              placeholder="Search your financial entries..."
+              placeholder="Search..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  // You can add extra logic here if you want it ONLY on enter, 
-                  // but real-time is usually better for UX.
-                  (e.target as HTMLInputElement).blur();
-                }
-              }}
-              className="w-full bg-[#1e293b] border border-[#334155] rounded-2xl py-2.5 pl-12 pr-4 text-[#f8fafc] placeholder-[#64748b] focus:outline-none focus:border-indigo-500 transition-all cursor-text shadow-inner"
+              className="w-full bg-[#1e293b] border border-[#334155] rounded-xl md:rounded-2xl py-2 md:py-2.5 pl-10 md:pl-12 pr-4 text-sm md:text-base text-[#f8fafc] placeholder-[#64748b] focus:outline-none focus:border-indigo-500 transition-all cursor-text shadow-inner"
             />
           </div>
         </div>

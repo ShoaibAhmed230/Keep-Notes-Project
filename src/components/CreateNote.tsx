@@ -100,27 +100,27 @@ export function CreateNote({ onSave }: CreateNoteProps) {
               </div>
             </div>
 
-            <div className="shrink-0 p-8 pt-4 border-t border-[#334155] bg-[#1e293b]/50 backdrop-blur-sm">
-              <div className="flex items-center justify-between">
-                {(() => {
-                  const combinedContent = `--- EARNINGS ---\n${earningsContent}\n\n--- EXPENSES ---\n${expensesContent}`;
-                  const { remaining } = calculateExpenses(combinedContent);
-                  const hasValues = earningsContent || expensesContent;
-                  if (!hasValues) return <div />;
-                  return (
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-[#64748b] tracking-widest">REMAINING</span>
-                      <span className={`text-2xl font-black ${remaining >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        Rs. {remaining.toLocaleString()}
-                      </span>
-                    </div>
-                  );
-                })()}
+            <div className="shrink-0 p-5 md:p-8 pt-4 border-t border-[#334155] bg-[#1e293b]/50 backdrop-blur-sm">
+                <div className="flex items-center justify-between gap-2">
+                  {(() => {
+                    const combinedContent = `--- EARNINGS ---\n${earningsContent}\n\n--- EXPENSES ---\n${expensesContent}`;
+                    const { remaining } = calculateExpenses(combinedContent);
+                    const hasValues = earningsContent || expensesContent;
+                    if (!hasValues) return <div />;
+                    return (
+                      <div className="flex flex-col min-w-[80px]">
+                        <span className="text-[9px] font-black text-[#64748b] tracking-widest uppercase">Remaining</span>
+                        <span className={`text-lg md:text-2xl font-black leading-tight ${remaining >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          Rs. {remaining.toLocaleString()}
+                        </span>
+                      </div>
+                    );
+                  })()}
 
-                  <div className="flex gap-4">
+                  <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => setIsExpanded(false)}
-                      className="px-6 py-3 text-sm font-bold text-[#64748b] hover:text-white transition-colors cursor-pointer"
+                      className="px-3 md:px-6 py-2 md:py-3 text-[11px] md:text-sm font-bold text-[#64748b] hover:text-white transition-colors cursor-pointer"
                     >
                       Discard
                     </button>
@@ -134,12 +134,12 @@ export function CreateNote({ onSave }: CreateNoteProps) {
                         setExpensesContent('');
                         setIsExpanded(false);
                       }}
-                      className="px-10 py-3 text-sm font-bold bg-indigo-500 text-white rounded-2xl hover:bg-indigo-600 shadow-xl shadow-indigo-500/20 transition-all active:scale-95 cursor-pointer"
+                      className="px-4 md:px-10 py-2.5 md:py-3 text-[11px] md:text-sm font-bold bg-indigo-500 text-white rounded-xl md:rounded-2xl hover:bg-indigo-600 shadow-xl shadow-indigo-500/20 transition-all active:scale-95 cursor-pointer whitespace-nowrap"
                     >
                       Save Entry
                     </button>
                   </div>
-              </div>
+                </div>
             </div>
           </div>
         )}
