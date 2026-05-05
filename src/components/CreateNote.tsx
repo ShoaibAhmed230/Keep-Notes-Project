@@ -117,28 +117,28 @@ export function CreateNote({ onSave }: CreateNoteProps) {
                   );
                 })()}
 
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => setIsExpanded(false)}
-                    className="px-6 py-3 text-sm font-bold text-[#64748b] hover:text-white transition-colors"
-                  >
-                    Discard
-                  </button>
-                  <button
-                    onClick={() => {
-                      const combinedContent = `--- EARNINGS ---\n${earningsContent}\n\n--- EXPENSES ---\n${expensesContent}`;
-                      const hasContent = title.trim() || earningsContent.trim() || expensesContent.trim();
-                      if (hasContent) onSave({ title, content: combinedContent });
-                      setTitle('');
-                      setEarningsContent('');
-                      setExpensesContent('');
-                      setIsExpanded(false);
-                    }}
-                    className="px-10 py-3 text-sm font-bold bg-indigo-500 text-white rounded-2xl hover:bg-indigo-600 shadow-xl shadow-indigo-500/20 transition-all active:scale-95"
-                  >
-                    Save Entry
-                  </button>
-                </div>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => setIsExpanded(false)}
+                      className="px-6 py-3 text-sm font-bold text-[#64748b] hover:text-white transition-colors cursor-pointer"
+                    >
+                      Discard
+                    </button>
+                    <button
+                      onClick={() => {
+                        const combinedContent = `--- EARNINGS ---\n${earningsContent}\n\n--- EXPENSES ---\n${expensesContent}`;
+                        const hasContent = title.trim() || earningsContent.trim() || expensesContent.trim();
+                        if (hasContent) onSave({ title, content: combinedContent });
+                        setTitle('');
+                        setEarningsContent('');
+                        setExpensesContent('');
+                        setIsExpanded(false);
+                      }}
+                      className="px-10 py-3 text-sm font-bold bg-indigo-500 text-white rounded-2xl hover:bg-indigo-600 shadow-xl shadow-indigo-500/20 transition-all active:scale-95 cursor-pointer"
+                    >
+                      Save Entry
+                    </button>
+                  </div>
               </div>
             </div>
           </div>

@@ -89,9 +89,45 @@ export function useNotes() {
     }
   };
 
+  const bulkUpdateNotes = async (ids: string[], updates: Partial<Note>) => {
+    const { error } = await supabase
+      .from('notes')
+      .update(updates)
+      .in('id', ids);
+
+    if (error) {
+      console.error('Error bulk updating notes:', error);
+    } else {
+      setNotes(notes.map(n => ids.includes(n.id) ? { ...n, ...updates } : n));
+    }
+  };
+
+  const bulkDeleteNotes = async (ids: string[]) => {
+    const { error } = await supabase
+      .from('notes')
+      .delete()
+      .in('id', ids);
+
+    if (error) {
+      console.error('Error bulk deleting notes:', error);
+    } else {
+      setNotes(notes.filter(n => !ids.includes(n.id)));
+    }
+  };
+
   useEffect(() => {
     fetchNotes();
   }, []);
 
-  return { notes, loading, addNote, updateNote, deleteNote, permanentlyDeleteNote, fetchNotes };
+  return { 
+    notes, 
+    loading, 
+    addNote, 
+    updateNote, 
+    deleteNote, 
+    permanentlyDeleteNote, 
+    bulkUpdateNotes, 
+    bulkDeleteNotes,
+    fetchNotes 
+  };
 }

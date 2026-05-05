@@ -1,13 +1,15 @@
 'use client';
 
 import React from 'react';
-import { Pin, Archive, Trash2, MoreVertical, Palette, RotateCcw } from 'lucide-react';
+import { Pin, Archive, Trash2, MoreVertical, Palette, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { Note } from '@/hooks/useNotes';
 import { calculateExpenses } from '@/utils/calculator';
 import { motion } from 'framer-motion';
 
 interface NoteCardProps {
   note: Note;
+  isSelected?: boolean;
+  onSelect?: () => void;
   onClick: () => void;
   onDelete: (id: string) => void;
   onUpdate: (id: string, updates: Partial<Note>) => void;
@@ -20,7 +22,7 @@ const CustomTooltip = ({ text }: { text: string }) => (
   </div>
 );
 
-export function NoteCard({ note, onClick, onDelete, onUpdate, onPermanentlyDelete }: NoteCardProps) {
+export function NoteCard({ note, isSelected, onSelect, onClick, onDelete, onUpdate, onPermanentlyDelete }: NoteCardProps) {
   const { earnings, totalExpenses, remaining } = calculateExpenses(note.content);
 
   const parts = note.content.split('--- EXPENSES ---');
@@ -33,12 +35,27 @@ export function NoteCard({ note, onClick, onDelete, onUpdate, onPermanentlyDelet
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      className={`group relative p-0 rounded-[2.5rem] border border-[#334155] hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300 cursor-pointer bg-[#1e293b] min-h-[220px] max-h-[480px] flex flex-col overflow-hidden`}
+      className={`group relative p-0 rounded-[2.5rem] border transition-all duration-300 cursor-pointer flex flex-col overflow-hidden ${
+        isSelected 
+          ? 'border-indigo-500 bg-indigo-500/10 shadow-2xl shadow-indigo-500/20 ring-2 ring-indigo-500/30' 
+          : 'border-[#334155] bg-[#1e293b] hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10'
+      } min-h-[220px] max-h-[480px]`}
       onClick={onClick}
     >
+      <div 
+        onClick={(e) => { e.stopPropagation(); onSelect?.(); }}
+        className={`absolute top-3 left-3 z-[50] p-1.5 rounded-full transition-all duration-300 ${
+          isSelected 
+            ? 'bg-indigo-500 text-white scale-110 opacity-100 shadow-lg shadow-indigo-500/50' 
+            : 'bg-black/20 text-white/50 opacity-0 group-hover:opacity-100 hover:bg-black/40'
+        }`}
+      >
+        {isSelected ? <CheckCircle2 className="w-5 h-5" /> : <div className="w-5 h-5 border-2 border-current rounded-full" />}
+      </div>
+
       {/* Header - Fixed */}
       <div className="p-6 pb-2 flex justify-between items-start shrink-0">
-        <h3 className="text-2xl font-black text-indigo-400 leading-tight tracking-tighter break-words pr-8">
+        <h3 className={`text-2xl font-black text-indigo-400 leading-tight tracking-tighter break-words pr-8 transition-all duration-300 ${isSelected ? 'pl-14' : ''}`}>
           {note.title || (note.content ? '' : 'New Entry')}
         </h3>
         {!note.is_trashed && (

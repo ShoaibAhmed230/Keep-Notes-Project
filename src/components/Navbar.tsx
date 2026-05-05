@@ -1,25 +1,35 @@
 'use client';
 
 import React from 'react';
-import { Search, Wallet } from 'lucide-react';
+import { Search, Wallet, Menu } from 'lucide-react';
 
 interface NavbarProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  onMenuToggle: () => void;
 }
 
-export function Navbar({ searchQuery, onSearchChange }: NavbarProps) {
+export function Navbar({ searchQuery, onSearchChange, onMenuToggle }: NavbarProps) {
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-[#0f172a] border-b border-[#334155] z-[100] px-4 flex items-center justify-center">
-      <div className="flex items-center gap-8 w-full max-w-4xl">
-        {/* Brand */}
-        <div className="flex items-center gap-2 group cursor-pointer shrink-0">
-          <div className="bg-indigo-500 p-1.5 rounded-lg shadow-lg shadow-indigo-500/20">
-            <Wallet className="w-5 h-5 text-white" />
+      <div className="flex items-center gap-4 md:gap-8 w-full max-w-7xl">
+        {/* Menu Button & Brand */}
+        <div className="flex items-center gap-2 md:gap-4 shrink-0">
+          <button 
+            onClick={onMenuToggle}
+            className="p-2 hover:bg-[#1e293b] rounded-full text-[#64748b] hover:text-white transition-colors md:hidden cursor-pointer"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+
+          <div className="flex items-center gap-2 group cursor-pointer">
+            <div className="p-1 group-hover:scale-110 transition-transform duration-300">
+              <img src="/favicon.png" alt="FlowNotes Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain mix-blend-screen" />
+            </div>
+            <h1 className="text-2xl md:text-3xl font-black tracking-tighter text-white hidden sm:block">
+              Flow<span className="text-indigo-400">Notes</span>
+            </h1>
           </div>
-          <h1 className="text-xl font-black tracking-tighter text-white hidden sm:block">
-            Flow<span className="text-indigo-400">Notes</span>
-          </h1>
         </div>
 
         {/* Search Bar */}
