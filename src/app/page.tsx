@@ -8,14 +8,18 @@ import { NoteCard } from '@/components/NoteCard';
 import { NoteModal } from '@/components/NoteModal';
 import { CustomDropdown } from '@/components/Dropdown';
 import { useNotes, Note } from '@/hooks/useNotes';
+import { useAuth } from '@/components/AuthProvider';
+import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, Trash2, Archive, Pin, Filter, ArrowUpDown, Calendar } from 'lucide-react';
+import { X, Trash2, Archive, Pin, Filter, ArrowUpDown, Calendar, Loader2, Plus, Search } from 'lucide-react';
 import { calculateExpenses } from '@/utils/calculator';
 
 export default function Home() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const { 
     notes, 
-    loading, 
+    loading: notesLoading, 
     addNote, 
     updateNote, 
     deleteNote, 
@@ -35,6 +39,13 @@ export default function Home() {
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const [selectedYear, setSelectedYear] = useState<string>('all');
 
+  // Handle authentication redirect
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/auth/login');
+    }
+  }, [user, authLoading, router]);
+
   const years = Array.from(new Set(notes.map(n => new Date(n.created_at).getFullYear().toString()))).sort((a, b) => b.localeCompare(a));
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -51,6 +62,20 @@ export default function Home() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  if (authLoading || (!user && !authLoading)) {
+    return (
+      <div className="min-h-screen bg-[#0f172a] flex flex-col items-center justify-center">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <img src="/favicon.png" alt="FlowNotes" className="w-6 h-6 object-contain animate-pulse" />
+          </div>
+        </div>
+        <p className="mt-4 text-[#64748b] text-sm font-black uppercase tracking-[0.2em] animate-pulse">Initializing FlowNotes</p>
+      </div>
+    );
+  }
 
   const handleNoteClick = (note: Note) => {
     if (selectedIds.length > 0) {
@@ -185,39 +210,26 @@ export default function Home() {
         isSidebarOpen ? 'md:pl-[280px]' : 'md:pl-20'
       }`}>
         <div className="max-w-7xl mx-auto px-4 pb-20">
-          {activeView === 'notes' && <CreateNote onSave={addNote} />}
-
-          {/* Enhanced Filter Bar */}
-          <div className="flex flex-col gap-4 mb-8">
-            <div className="flex items-center gap-4 overflow-x-auto pb-2 no-scrollbar">
-              <div className="flex items-center gap-2 shrink-0">
-                <Filter className="w-4 h-4 text-[#64748b]" />
-                <span className="text-[10px] font-black text-[#64748b] uppercase tracking-widest">Filters</span>
-              </div>
-              <div className="flex gap-2">
-                {[
-                  { id: 'all', label: 'All' },
-                  { id: 'profit', label: 'Profit' },
-                  { id: 'loss', label: 'Loss' },
-                  { id: 'earnings', label: 'Earnings' },
-                  { id: 'expenses', label: 'Expenses' },
-                ].map(f => (
-                  <button
-                    key={f.id}
-                    onClick={() => setFilterType(f.id)}
-                    className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all border ${
-                      filterType === f.id 
-                        ? 'bg-indigo-500 border-indigo-500 text-white shadow-lg shadow-indigo-500/20' 
-                        : 'bg-[#1e293b] border-[#334155] text-[#64748b] hover:border-[#475569]'
-                    }`}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
+          
+          {/* Main Content Search Bar */}
+          <div className="mb-8 md:mb-12 max-w-2xl mx-auto">
+            <div className="relative group">
+              <Search 
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748b] group-focus-within:text-indigo-400 transition-colors" 
+              />
+              <input
+                type="text"
+                placeholder="Search your financial notes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#1e293b] border border-[#334155] rounded-2xl py-3.5 md:py-4 pl-12 pr-4 text-sm md:text-base text-[#f8fafc] placeholder-[#64748b]/50 focus:outline-none focus:border-indigo-500 transition-all shadow-xl shadow-black/20"
+              />
             </div>
+          </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+          {/* Filter Bar */}
+          <div className="flex flex-col gap-4 mb-8">
+            <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 px-1">
               <CustomDropdown 
                 label="Sort"
                 value={sortBy}
@@ -254,7 +266,7 @@ export default function Home() {
               {isFilterActive && (
                 <button
                   onClick={clearFilters}
-                  className="flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-xl transition-all cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-xl transition-all cursor-pointer whitespace-nowrap"
                 >
                   <X className="w-3.5 h-3.5" />
                   Clear All
@@ -263,7 +275,7 @@ export default function Home() {
             </div>
           </div>
 
-          {loading ? (
+          {notesLoading ? (
             <div className="flex justify-center items-center h-64">
               <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
@@ -280,7 +292,7 @@ export default function Home() {
               {pinnedNotes.length > 0 && (
                 <section>
                   <h2 className="text-[10px] font-black text-[#64748b] uppercase tracking-[0.3em] mb-6 px-4">Pinned</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-6">
                     <AnimatePresence mode="popLayout">
                       {pinnedNotes.map((note) => (
                         <NoteCard
@@ -304,7 +316,7 @@ export default function Home() {
                   {pinnedNotes.length > 0 && (
                     <h2 className="text-[10px] font-black text-[#64748b] uppercase tracking-[0.3em] mb-6 px-4">Notes</h2>
                   )}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-6">
                     <AnimatePresence mode="popLayout">
                       {otherNotes.map((note) => (
                         <NoteCard
@@ -332,7 +344,33 @@ export default function Home() {
         onClose={() => setIsModalOpen(false)}
         onUpdate={updateNote}
         onDelete={deleteNote}
+        onSave={addNote}
       />
+
+      {/* Floating Action Button (FAB) - Mobile/Desktop */}
+      <motion.button
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => {
+          setSelectedNote({ 
+            id: 'new', 
+            title: '', 
+            content: '--- EARNINGS ---\n\n\n--- EXPENSES ---\n', 
+            user_id: user?.id || '',
+            color: 'bg-[#1e293b]',
+            is_pinned: false,
+            is_archived: false,
+            is_trashed: false,
+            created_at: new Date().toISOString()
+          } as Note);
+          setIsModalOpen(true);
+        }}
+        className="fixed bottom-6 right-6 md:bottom-10 md:right-10 w-14 h-14 md:w-16 md:h-16 bg-indigo-500 hover:bg-indigo-600 text-white rounded-2xl shadow-2xl shadow-indigo-500/40 flex items-center justify-center z-[150] cursor-pointer group"
+      >
+        <Plus className="w-8 h-8 md:w-10 md:h-10 group-hover:rotate-90 transition-transform duration-300" />
+      </motion.button>
     </div>
   );
 }

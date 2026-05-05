@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/components/AuthProvider';
 
 export interface Note {
   id: string;
+  user_id: string;
   title: string;
   content: string;
   color: string;
@@ -17,12 +19,20 @@ export interface Note {
 export function useNotes() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
-  const fetchNotes = async () => {
+  const fetchNotes = useCallback(async () => {
+    if (!user) {
+      setNotes([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     const { data, error } = await supabase
       .from('notes')
       .select('*')
+      .eq('user_id', user.id)
       .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false });
 
@@ -32,13 +42,15 @@ export function useNotes() {
       setNotes(data || []);
     }
     setLoading(false);
-  };
+  }, [user]);
 
   const addNote = async (note: Partial<Note>) => {
+    if (!user) return;
+
     console.log('Attempting to save note:', note);
     const { data, error } = await supabase
       .from('notes')
-      .insert([note])
+      .insert([{ ...note, user_id: user.id }])
       .select();
 
     if (error) {
@@ -51,10 +63,13 @@ export function useNotes() {
   };
 
   const updateNote = async (id: string, updates: Partial<Note>) => {
+    if (!user) return;
+
     const { error } = await supabase
       .from('notes')
       .update(updates)
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', user.id);
 
     if (error) {
       console.error('Error updating note:', error);
@@ -64,10 +79,13 @@ export function useNotes() {
   };
 
   const deleteNote = async (id: string) => {
+    if (!user) return;
+
     const { error } = await supabase
       .from('notes')
       .update({ is_trashed: true })
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', user.id);
 
     if (error) {
       console.error('Error moving note to trash:', error);
@@ -77,10 +95,13 @@ export function useNotes() {
   };
 
   const permanentlyDeleteNote = async (id: string) => {
+    if (!user) return;
+
     const { error } = await supabase
       .from('notes')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', user.id);
 
     if (error) {
       console.error('Error permanently deleting note:', error);
@@ -90,10 +111,13 @@ export function useNotes() {
   };
 
   const bulkUpdateNotes = async (ids: string[], updates: Partial<Note>) => {
+    if (!user) return;
+
     const { error } = await supabase
       .from('notes')
       .update(updates)
-      .in('id', ids);
+      .in('id', ids)
+      .eq('user_id', user.id);
 
     if (error) {
       console.error('Error bulk updating notes:', error);
@@ -103,10 +127,13 @@ export function useNotes() {
   };
 
   const bulkDeleteNotes = async (ids: string[]) => {
+    if (!user) return;
+
     const { error } = await supabase
       .from('notes')
       .delete()
-      .in('id', ids);
+      .in('id', ids)
+      .eq('user_id', user.id);
 
     if (error) {
       console.error('Error bulk deleting notes:', error);
@@ -117,7 +144,7 @@ export function useNotes() {
 
   useEffect(() => {
     fetchNotes();
-  }, []);
+  }, [fetchNotes]);
 
   return { 
     notes, 

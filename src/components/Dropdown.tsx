@@ -32,15 +32,15 @@ export function CustomDropdown({ label, value, options, onChange, icon }: Dropdo
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 bg-[#1e293b] border border-[#334155] rounded-xl px-4 py-2 hover:border-indigo-500/50 transition-all cursor-pointer group min-w-[140px] justify-between"
+        className="flex items-center gap-2 bg-[#1e293b] border border-[#334155] rounded-xl px-4 h-10 md:h-12 hover:border-indigo-500/50 transition-all cursor-pointer group min-w-[140px] justify-between whitespace-nowrap"
       >
-        <div className="flex items-center gap-2">
-          {icon && <span className="text-[#64748b] group-hover:text-indigo-400 transition-colors">{icon}</span>}
-          <span className="text-[10px] font-black uppercase tracking-widest text-[#f8fafc]">
+        <div className="flex items-center gap-2 overflow-hidden">
+          {icon && <span className="text-[#64748b] group-hover:text-indigo-400 transition-colors shrink-0">{icon}</span>}
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#f8fafc] truncate">
             {label}: {selectedOption?.label || value}
           </span>
         </div>
-        <ChevronDown className={`w-3.5 h-3.5 text-[#64748b] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-3.5 h-3.5 text-[#64748b] transition-transform duration-300 shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       <AnimatePresence>

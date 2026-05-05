@@ -12,9 +12,10 @@ interface NoteModalProps {
   onClose: () => void;
   onUpdate: (id: string, updates: Partial<Note>) => void;
   onDelete: (id: string) => void;
+  onSave?: (note: Partial<Note>) => void;
 }
 
-export function NoteModal({ note, isOpen, onClose, onUpdate, onDelete }: NoteModalProps) {
+export function NoteModal({ note, isOpen, onClose, onUpdate, onDelete, onSave }: NoteModalProps) {
   const [title, setTitle] = useState('');
   const [earningsContent, setEarningsContent] = useState('');
   const [expensesContent, setExpensesContent] = useState('');
@@ -23,14 +24,20 @@ export function NoteModal({ note, isOpen, onClose, onUpdate, onDelete }: NoteMod
 
   useEffect(() => {
     if (note) {
-      setTitle(note.title);
-      const parts = note.content.split('--- EXPENSES ---');
-      const earningsPart = parts[0].replace('--- EARNINGS ---', '').trim();
-      const expensesPart = parts[1] ? parts[1].trim() : '';
-      setEarningsContent(earningsPart);
-      setExpensesContent(expensesPart);
+      if (note.id === 'new') {
+        setTitle('');
+        setEarningsContent('');
+        setExpensesContent('');
+      } else {
+        setTitle(note.title);
+        const parts = note.content.split('--- EXPENSES ---');
+        const earningsPart = parts[0].replace('--- EARNINGS ---', '').trim();
+        const expensesPart = parts[1] ? parts[1].trim() : '';
+        setEarningsContent(earningsPart);
+        setExpensesContent(expensesPart);
+      }
     }
-  }, [note]);
+  }, [note, isOpen]);
 
   // Auto-resize textareas
   useEffect(() => {
@@ -54,7 +61,9 @@ export function NoteModal({ note, isOpen, onClose, onUpdate, onDelete }: NoteMod
         return;
       }
 
-      if (title !== note.title || combinedContent !== note.content) {
+      if (note.id === 'new') {
+        onSave?.({ title, content: combinedContent, color: note.color });
+      } else if (title !== note.title || combinedContent !== note.content) {
         onUpdate(note.id, { title, content: combinedContent });
       }
     }
@@ -93,12 +102,14 @@ export function NoteModal({ note, isOpen, onClose, onUpdate, onDelete }: NoteMod
                   className="bg-transparent border-none outline-none text-2xl md:text-4xl font-light text-indigo-400 placeholder-indigo-500/20 w-full tracking-tight"
                 />
                 <div className="flex items-center gap-2 md:gap-3">
-                    <button 
-                      onClick={() => onUpdate(note.id, { is_pinned: !note.is_pinned })}
-                      className={`p-2.5 md:p-3 rounded-2xl transition-all cursor-pointer ${note.is_pinned ? 'text-amber-400 bg-amber-400/10' : 'text-[#64748b] hover:bg-[#334155]'}`}
-                    >
-                      <Pin className="w-5 h-5 md:w-6 md:h-6" />
-                    </button>
+                    {note.id !== 'new' && (
+                      <button 
+                        onClick={() => onUpdate(note.id, { is_pinned: !note.is_pinned })}
+                        className={`p-2.5 md:p-3 rounded-2xl transition-all cursor-pointer ${note.is_pinned ? 'text-amber-400 bg-amber-400/10' : 'text-[#64748b] hover:bg-[#334155]'}`}
+                      >
+                        <Pin className="w-5 h-5 md:w-6 md:h-6" />
+                      </button>
+                    )}
                     <button onClick={handleSave} className="p-2.5 md:p-3 rounded-2xl hover:bg-[#334155] text-[#64748b] cursor-pointer">
                       <X className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
@@ -151,22 +162,25 @@ export function NoteModal({ note, isOpen, onClose, onUpdate, onDelete }: NoteMod
                     </span>
                   </div>
                 </div>
-                
-                <div className="flex justify-between items-center gap-4">
+                               <div className="flex justify-between items-center gap-4">
                   <div className="flex gap-1 md:gap-2">
-                    <button className="p-2.5 md:p-3 hover:bg-[#334155] rounded-2xl text-[#64748b] hover:text-indigo-400 transition-colors cursor-pointer"><Archive className="w-5 h-5 md:w-6 md:h-6" /></button>
-                    <button 
-                      onClick={() => onDelete(note.id)}
-                      className="p-2.5 md:p-3 hover:bg-[#334155] rounded-2xl text-[#64748b] hover:text-rose-400 transition-colors cursor-pointer"
-                    >
-                      <Trash2 className="w-5 h-5 md:w-6 md:h-6" />
-                    </button>
+                    {note.id !== 'new' && (
+                      <>
+                        <button className="p-2.5 md:p-3 hover:bg-[#334155] rounded-2xl text-[#64748b] hover:text-indigo-400 transition-colors cursor-pointer"><Archive className="w-5 h-5 md:w-6 md:h-6" /></button>
+                        <button 
+                          onClick={() => onDelete(note.id)}
+                          className="p-2.5 md:p-3 hover:bg-[#334155] rounded-2xl text-[#64748b] hover:text-rose-400 transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-5 h-5 md:w-6 md:h-6" />
+                        </button>
+                      </>
+                    )}
                   </div>
                   <button 
                     onClick={handleSave}
                     className="flex-1 md:flex-none px-8 md:px-12 py-3.5 md:py-4 bg-indigo-500 text-white text-sm md:text-base font-bold rounded-2xl hover:bg-indigo-600 shadow-xl shadow-indigo-500/20 transition-all active:scale-95 cursor-pointer"
                   >
-                    Save Entry
+                    {note.id === 'new' ? 'Create Entry' : 'Save Changes'}
                   </button>
                 </div>
               </div>
