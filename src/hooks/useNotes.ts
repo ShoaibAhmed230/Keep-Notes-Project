@@ -58,7 +58,7 @@ export function useNotes() {
       alert('Error saving to Supabase: ' + error.message);
     } else if (data) {
       console.log('Successfully saved to Supabase:', data[0]);
-      setNotes([data[0], ...notes]);
+      setNotes(prev => [data[0], ...prev]);
     }
   };
 
@@ -74,7 +74,7 @@ export function useNotes() {
     if (error) {
       console.error('Error updating note:', error);
     } else {
-      setNotes(notes.map(n => n.id === id ? { ...n, ...updates } : n));
+      setNotes(prev => prev.map(n => n.id === id ? { ...n, ...updates } : n));
     }
   };
 
@@ -90,7 +90,7 @@ export function useNotes() {
     if (error) {
       console.error('Error moving note to trash:', error);
     } else {
-      setNotes(notes.map(n => n.id === id ? { ...n, is_trashed: true } : n));
+      setNotes(prev => prev.map(n => n.id === id ? { ...n, is_trashed: true } : n));
     }
   };
 
@@ -106,7 +106,7 @@ export function useNotes() {
     if (error) {
       console.error('Error permanently deleting note:', error);
     } else {
-      setNotes(notes.filter(n => n.id !== id));
+      setNotes(prev => prev.filter(n => n.id !== id));
     }
   };
 
@@ -122,7 +122,7 @@ export function useNotes() {
     if (error) {
       console.error('Error bulk updating notes:', error);
     } else {
-      setNotes(notes.map(n => ids.includes(n.id) ? { ...n, ...updates } : n));
+      setNotes(prev => prev.map(n => ids.includes(n.id) ? { ...n, ...updates } : n));
     }
   };
 
@@ -138,7 +138,7 @@ export function useNotes() {
     if (error) {
       console.error('Error bulk deleting notes:', error);
     } else {
-      setNotes(notes.filter(n => !ids.includes(n.id)));
+      setNotes(prev => prev.filter(n => !ids.includes(n.id)));
     }
   };
 
